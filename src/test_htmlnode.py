@@ -1,5 +1,5 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHTMLNode(unittest.TestCase):
     def test_to_html(self):
@@ -41,3 +41,54 @@ class TestHTMLNode(unittest.TestCase):
         node1 = LeafNode("a", "this is a test", {"href": "https://www.google.com"})
         truth = "LeafNode(a, this is a test, {'href': 'https://www.google.com'})"
         self.assertEqual(truth, repr(node1))
+
+    def test_to_html_parent(self):
+        node = ParentNode(
+        "p",
+        [
+            LeafNode("b", "Bold text"),
+            LeafNode(None, "Normal text"),
+            LeafNode("i", "italic text"),
+            LeafNode(None, "Normal text"),
+        ],
+        )
+        truth = "<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>"
+        self.assertTrue(truth, node.to_html()) 
+
+    def test_to_html_parent_no_tag(self):
+        node = ParentNode(
+        None,
+        [
+            LeafNode("b", "Bold text"),
+            LeafNode(None, "Normal text"),
+            LeafNode("i", "italic text"),
+            LeafNode(None, "Normal text"),
+        ],
+        )   
+
+        with self.assertRaises(ValueError):
+            node.to_html()
+
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+    def test_to_html_parent_no_children(self):
+        node = ParentNode(
+        "a",
+        None,
+        )   
+
+        with self.assertRaises(ValueError):
+            node.to_html()
+         
