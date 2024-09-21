@@ -9,6 +9,7 @@ from textnode import (
     text_type_code,
     text_type_image,
     text_type_link,
+    text_type_fail
 )
 
 class TestTextNode(unittest.TestCase):
@@ -71,6 +72,11 @@ class TestTextToHTML(unittest.TestCase):
         self.assertEqual(html_node.tag, "img")
         self.assertEqual(html_node.value, None)
         self.assertEqual(html_node.props, {'src':f'{text_node.url}', 'alt':f'{text_node.text}'})
+
+    def test_invalid(self):
+        text_node = TextNode("this should raise value error", text_type_fail)
+        with self.assertRaises(ValueError):
+            text_node_to_html_node(text_node)
 
 if __name__ == "__main__":
     unittest.main()
